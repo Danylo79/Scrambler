@@ -2,6 +2,7 @@ package dev.dankom.scrambler.util;
 
 import dev.dankom.scrambler.file.FileManager;
 import dev.dankom.scrambler.file.json.JsonFile;
+import dev.dankom.scrambler.logger.Logger;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 
@@ -47,13 +48,14 @@ public class Key extends JSONObject implements JSONAware {
     }
 
     public String getValue(String value) {
-        System.out.println("Search: " + value);
+        Logger.log("Search: " + value);
         for (Map.Entry entry : keyset.entrySet()) {
-            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
             if (((String)entry.getValue()).equalsIgnoreCase(value)) {
-                return (String) entry.getValue();
+                Logger.log("Found key " + value + "!");
+                return (String) entry.getKey();
             }
         }
+        Logger.log("Failed to find " + value + "!");
         return null;
     }
 
@@ -61,9 +63,7 @@ public class Key extends JSONObject implements JSONAware {
         JSONObject jsonKeyset = (JSONObject) json.get("keyset");
         setKeysetLength(((Long) json.get("length")).intValue());
         setId(UUID.fromString((String) json.get("id")));
-        for (String s : StringUtil.getChars()) {
-            keyset.put(s, (String) jsonKeyset.get(s));
-        }
+        keyset = jsonKeyset;
     }
 
     public int getKeysetLength() {
@@ -110,22 +110,29 @@ public class Key extends JSONObject implements JSONAware {
 
     public String encode(String s) {
         String out = "";
+        Logger.log("Encoding " + s);
         for (int i = 0; i < s.chars().count(); i++) {
             out += getChar(((Character) s.charAt(i)).toString());
         }
+        Logger.log("Encoded " + s + " to " + out);
         return out;
     }
 
     public String decode(String s) {
+        Logger.log("Decoding " + s);
         String out = "";
         List<String> chars = new ArrayList<>();
         for (int j = 0; j < s.length(); j += getKeysetLength()) {
             int beginIndex = j;
-            int endIndex = beginIndex + getKeysetLength() - 1;
+            int endIndex = beginIndex + getKeysetLength();
             chars.add(s.substring(beginIndex, endIndex));
         }
         for (String code : chars) {
             out += getValue(code);
+        }
+        if (out.contains("null")) {
+            Logger.log("Failed to decode using the " + getId() + " scramble set!");
+            Runtime.getRuntime().exit(-1);
         }
         return out;
     }

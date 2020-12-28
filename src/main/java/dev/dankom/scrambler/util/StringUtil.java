@@ -104,6 +104,8 @@ public class StringUtil {
         pool.add(".");
         pool.add("?");
         pool.add("/");
+
+        pool.add(" ");
         return pool;
     }
 }

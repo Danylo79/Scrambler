@@ -1,15 +1,15 @@
 package dev.dankom;
 
 import dev.dankom.scrambler.Scrambler;
-import dev.dankom.scrambler.type.Operation;
+import dev.dankom.scrambler.logger.Logger;
 
 import java.util.UUID;
 
 public class Start {
     public static void main(String[] args) {
-        UUID id = (UUID) new Scrambler().run(Operation.GENERATE_KEY, "10");
-        String encoded = (String) new Scrambler().run(Operation.ENCODE, id.toString(), "Wow");
-        String decoded = (String) new Scrambler().run(Operation.DECODE, id.toString(), encoded);
-        System.out.println(decoded);
+        Scrambler scrambler = new Scrambler();
+        String encoded = scrambler.encode(UUID.fromString("9ede260c-07af-4a86-a3bf-ffbe3ecc1d07"), "This is my encoded message! If you are reading this good job, You have decoded my secret message!");
+        String decoded = scrambler.decode(UUID.fromString("9ede260c-07af-4a86-a3bf-ffbe3ecc1d07"), encoded);
+        Logger.testLog("The Decoded String is \"" + decoded + "\"");
     }
 }
